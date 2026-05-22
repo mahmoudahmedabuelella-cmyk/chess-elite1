@@ -12,8 +12,8 @@ workflows:
     scripts:
       - name: Unzip Project Files
         script: |
-          # أمر فك الضغط عن الملف أوتوماتيك داخل السيرفر
-          unzip -o android.zip
+          # فك الضغط عن ملفك الفعلي باستخدام علامات التنصيص عشان المسافات
+          unzip -o "Chess_Elite_Android_Project (1).zip"
       - name: Set up local.properties
         script: |
           cd android
