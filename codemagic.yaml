@@ -43,12 +43,25 @@ workflows:
           fi
           perl -pi -e "s/android \{/android \{\n    namespace '${REAL_PACKAGE}'/g" app/build.gradle
           
-          # إزالة الـ package القديم عشان التحذيرات
+          # إزالة الـ package والأيقونات القديمة
           perl -pi -e 's/package="[^"]*"//g' app/src/main/AndroidManifest.xml
-          
-          # الحل السحري: إزالة طلب الأيقونة المفقودة عشان يبني بالأيقونة الافتراضية
           perl -pi -e 's/android:icon="[^"]*"//g' app/src/main/AndroidManifest.xml
           perl -pi -e 's/android:roundIcon="[^"]*"//g' app/src/main/AndroidManifest.xml
+          
+          # === الحل السحري لخناقة Kotlin و Java ===
+          cat <<EOF >> app/build.gradle
+          
+          android {
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+              kotlinOptions {
+                  jvmTarget = '17'
+              }
+          }
+          EOF
+          echo "kotlin.jvm.target.validation.mode=warning" >> gradle.properties
           
           # توليد ملف البناء وبدء الطبخ
           gradle wrapper
