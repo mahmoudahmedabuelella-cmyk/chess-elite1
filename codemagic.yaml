@@ -1,0 +1,27 @@
+workflows:
+  android-workflow:
+    name: Android Build Workflow
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - android-signing
+      vars:
+        PACKAGE_NAME: "com.chess.elite"
+      node: v18.16.0
+    scripts:
+      - name: Unzip Project Files
+        script: |
+          # أمر فك الضغط عن الملف أوتوماتيك داخل السيرفر
+          unzip -o android.zip
+      - name: Set up local.properties
+        script: |
+          cd android
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+      - name: Build Android APK
+        script: |
+          cd android
+          chmod +x gradlew || true
+          ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/apk/**/*.apk
