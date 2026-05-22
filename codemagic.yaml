@@ -15,19 +15,32 @@ workflows:
           unzip -o "Chess_Elite_Android_Project (1).zip"
       - name: Fix and Build Android APK
         script: |
-          # الدخول لفولدر المشروع
           GRADLE_DIR=$(find . -name "build.gradle" -exec dirname {} \; | head -n 1)
           cd "$GRADLE_DIR"
           
-          # أمر سحري لتصليح خطأ التعارض القديم جوه الملفات أوتوماتيك
-          if [ -f "settings.gradle" ]; then
-            sed -i '' 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle || true
-          fi
+          # استبدال ملف الإعدادات بالكامل بنسخة نظيفة مفيهاش تعارض
+          cat <<EOF > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+              repositories {
+                  google()
+                  mavenCentral()
+                  maven { url 'https://jitpack.io' }
+              }
+          }
+          rootProject.name = "Chess Elite"
+          include ':app'
+          EOF
           
-          # توليد ملف gradlew الناقص
+          # توليد ملف البناء وبدء الطبخ
           gradle wrapper
-          
-          # بناء ملف الـ APK
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           chmod +x gradlew
           ./gradlew assembleDebug
