@@ -13,19 +13,21 @@ workflows:
       - name: Unzip Project Files
         script: |
           unzip -o "Chess_Elite_Android_Project (1).zip"
-      - name: Build Android APK
+      - name: Fix and Build Android APK
         script: |
-          # الدخول للفولدر اللي جواه ملف build.gradle الرئيسي
+          # الدخول لفولدر المشروع
           GRADLE_DIR=$(find . -name "build.gradle" -exec dirname {} \; | head -n 1)
-          if [ -z "$GRADLE_DIR" ]; then
-            echo "Error: build.gradle not found anywhere!"
-            exit 1
-          fi
           cd "$GRADLE_DIR"
           
-          # أمر سحري لتوليد ملف gradlew الناقص أوتوماتيك جوه السيرفر
+          # أمر سحري لتصليح خطأ التعارض القديم جوه الملفات أوتوماتيك
+          if [ -f "settings.gradle" ]; then
+            sed -i '' 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle || true
+          fi
+          
+          # توليد ملف gradlew الناقص
           gradle wrapper
           
+          # بناء ملف الـ APK
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           chmod +x gradlew
           ./gradlew assembleDebug
