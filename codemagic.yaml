@@ -6,8 +6,6 @@ workflows:
     environment:
       groups:
         - android-signing
-      vars:
-        PACKAGE_NAME: "com.chess.elite"
       node: v18.16.0
     scripts:
       - name: Unzip Project Files
@@ -15,7 +13,6 @@ workflows:
           unzip -o "Chess_Elite_Android_Project (1).zip"
       - name: Fix and Build Android APK
         script: |
-          # الدخول لفولدر المشروع الرئيسي مباشرة بدون بحث
           cd android
           
           # استبدال ملف الإعدادات بالنسخة النظيفة
@@ -38,6 +35,13 @@ workflows:
           rootProject.name = "Chess Elite"
           include ':app'
           EOF
+          
+          # سحب الـ Namespace وزرعها أوتوماتيك
+          REAL_PACKAGE=$(grep -o 'package="[^"]*"' app/src/main/AndroidManifest.xml | cut -d'"' -f2 | head -n 1)
+          if [ -z "$REAL_PACKAGE" ]; then
+            REAL_PACKAGE="com.chess.elite"
+          fi
+          perl -pi -e "s/android \{/android \{\n    namespace '${REAL_PACKAGE}'/g" app/build.gradle
           
           # توليد ملف البناء وبدء الطبخ
           gradle wrapper
