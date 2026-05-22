@@ -15,10 +15,10 @@ workflows:
           unzip -o "Chess_Elite_Android_Project (1).zip"
       - name: Fix and Build Android APK
         script: |
-          GRADLE_DIR=$(find . -name "build.gradle" -exec dirname {} \; | head -n 1)
-          cd "$GRADLE_DIR"
+          # الدخول لفولدر المشروع الرئيسي مباشرة بدون بحث
+          cd android
           
-          # استبدال ملف الإعدادات بالكامل بنسخة نظيفة مفيهاش تعارض
+          # استبدال ملف الإعدادات بالنسخة النظيفة
           cat <<EOF > settings.gradle
           pluginManagement {
               repositories {
