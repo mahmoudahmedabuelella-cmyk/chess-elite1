@@ -36,12 +36,19 @@ workflows:
           include ':app'
           EOF
           
-          # سحب الـ Namespace وزرعها أوتوماتيك
+          # سحب الـ Namespace وزرعها
           REAL_PACKAGE=$(grep -o 'package="[^"]*"' app/src/main/AndroidManifest.xml | cut -d'"' -f2 | head -n 1)
           if [ -z "$REAL_PACKAGE" ]; then
             REAL_PACKAGE="com.chess.elite"
           fi
           perl -pi -e "s/android \{/android \{\n    namespace '${REAL_PACKAGE}'/g" app/build.gradle
+          
+          # إزالة الـ package القديم عشان التحذيرات
+          perl -pi -e 's/package="[^"]*"//g' app/src/main/AndroidManifest.xml
+          
+          # الحل السحري: إزالة طلب الأيقونة المفقودة عشان يبني بالأيقونة الافتراضية
+          perl -pi -e 's/android:icon="[^"]*"//g' app/src/main/AndroidManifest.xml
+          perl -pi -e 's/android:roundIcon="[^"]*"//g' app/src/main/AndroidManifest.xml
           
           # توليد ملف البناء وبدء الطبخ
           gradle wrapper
