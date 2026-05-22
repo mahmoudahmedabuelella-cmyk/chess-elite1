@@ -12,16 +12,18 @@ workflows:
     scripts:
       - name: Unzip Project Files
         script: |
-          # فك الضغط عن ملفك الفعلي باستخدام علامات التنصيص عشان المسافات
           unzip -o "Chess_Elite_Android_Project (1).zip"
-      - name: Set up local.properties
-        script: |
-          cd android
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
       - name: Build Android APK
         script: |
-          cd android
-          chmod +x gradlew || true
+          # البحث عن الفولدر اللي جواه ملف البناء والدخول فيه أوتوماتيك
+          GRADLE_DIR=$(find . -name "gradlew" -exec dirname {} \; | head -n 1)
+          if [ -z "$GRADLE_DIR" ]; then
+            echo "Error: gradlew not found anywhere!"
+            exit 1
+          fi
+          cd "$GRADLE_DIR"
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          chmod +x gradlew
           ./gradlew assembleDebug
     artifacts:
-      - android/app/build/outputs/apk/**/*.apk
+      - "**/build/outputs/apk/**/*.apk"
